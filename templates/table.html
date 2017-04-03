@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Dashboard</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <style>
+            table {
+                border-collapse: collapse;
+                width: 100%;
+            }
+
+            th, td {
+                text-align: left;
+                padding: 8px;
+            }
+
+            tr:nth-child(even){background-color: #f2f2f2}
+
+            th {
+                background-color: #4CAF50;
+                color: white;
+            }
+
+            .button {
+                display: inline-block;
+                border-radius: 4px;
+                background-color: #4CAF50;
+                border: none;
+                color: #FFFFFF;
+                text-align: center;
+                font-size: 14px;
+                padding: 10px;
+                width: 100px;
+                transition: all 0.5s;
+                cursor: pointer;
+                margin: 5px;
+            }
+
+            .button span {
+                cursor: pointer;
+                display: inline-block;
+                position: relative;
+                transition: 0.5s;
+            }
+
+            .button span:after {
+                content: '\00bb';
+                position: absolute;
+                opacity: 0;
+                top: 0;
+                right: -20px;
+                transition: 0.5s;
+            }
+
+            .button:hover span {
+                padding-right: 25px;
+            }
+
+            .button:hover span:after {
+                opacity: 1;
+                right: 0;
+            }
+
+        </style>
+
+</head>
+<body>
+<p style="text-align: end">
+            {% if user.is_authenticated %}
+                Hello, {{ user.get_full_name }}
+                <button onclick="location.href='/logout/'" class="button" style="vertical-align:middle">
+                    <span>Logout </span>
+                </button>
+                <button onclick="location.href='/order/'" class="button" style="vertical-align:middle">
+                    <span>CreateOrder</span>
+                </button>
+            {% else %}
+                <button onclick="location.href='/register/'" class="button" style="vertical-align:middle">
+                    <span>Register </span>
+                </button>
+                <button onclick="location.href='/login/'" class="button" style="vertical-align:middle">
+                    <span>Login </span>
+                </button>
+            {% endif %}
+</p>
+
+<div class="container">
+  <h2>Dashboard</h2>
+  <p></p>
+  <table class="table table-hover table-bordered" id="myTable">
+    <thead>
+    <tr>
+        <th>Order ID</th>
+        <th>Product Name</th>
+        <th onclick="sortTableByStatus()" style="cursor: pointer">Order Status</th>
+        <th>Cost Price</th>
+        <th>Product URL</th>
+    </tr>
+    </thead>
+    <tbody>
+        {% for el in orders %}
+            <tr>
+                <td>{{ el.order_id }}</td>
+                <td>{{ el.product_name }}</td>
+                <td>{{ el.get_status_display }}</td>
+                <td>{{ el.cost_price }}</td>
+                <td><a href="{{ el.product_url }}">{{ el.product_url }}</a> </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+    function sortTableByStatus() {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById("myTable");
+        switching = true;
+        dir = "asc";
+        while (switching) {
+            switching = false;
+            rows = table.getElementsByTagName("TR");
+            for (i = 1; i < (rows.length - 1); i++) {
+                shouldSwitch = false;
+                x = rows[i].getElementsByTagName("TD")[2];
+                y = rows[i + 1].getElementsByTagName("TD")[2];
+                if (dir === "asc") {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        shouldSwitch= true;
+                        break;
+                    }
+                } else if (dir === "desc") {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        shouldSwitch= true;
+                        break;
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                switchcount ++;
+            } else {
+                if (switchcount === 0 && dir === "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
